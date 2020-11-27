@@ -5,21 +5,19 @@ export default (express, bodyParser, createReadStream, crypto, http) => {
 
     const parseUrlEncodedBody = bodyParser.urlencoded({ extended: false })
 
-    app.use(parseUrlEncodedBody)
-
-    app.use((req, res, next) => {
+    app
+    .use(parseUrlEncodedBody)
+    .use((req, res, next) => {
         res.setHeader('Content-Type', 'text/plain')
         res.setHeader('Access-Control-Allow-Origin', '*')
         res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
 
         next()
     })
-
-    app.get('/login/', (req, res) => {
+    .get('/login/', (req, res) => {
         res.send(author)
     })
-
-    app.get('/code/', (req, res) => {
+    .get('/code/', (req, res) => {
         let filePath = import.meta.url.replace(/^file:\/+/, '')
     
         if (! filePath.includes(':')) {
@@ -28,16 +26,14 @@ export default (express, bodyParser, createReadStream, crypto, http) => {
 
         createReadStream(filePath).pipe(res)
     })
-
-    app.get('/sha1/:input', ({ params }, res) => {
+    .get('/sha1/:input', ({ params }, res) => {
         const { input } = params
 
         const hash = crypto.createHash('sha1').update(input).digest('hex')
 
         res.send(hash);
     })
-
-    app.get('/req/', ({ query }, res) => {
+    .get('/req/', ({ query }, res) => {
         const { addr } = query
 
         http.get(addr, httpRes => {
@@ -51,9 +47,8 @@ export default (express, bodyParser, createReadStream, crypto, http) => {
                 res.send(data)
             })
         })
-    })
-    
-    app.post('/req/', ({ body }, res) => {
+    })    
+    .post('/req/', ({ body }, res) => {
         const { addr } = body
 
         http.get(addr, httpRes => {
@@ -67,9 +62,8 @@ export default (express, bodyParser, createReadStream, crypto, http) => {
                 res.send(data)
             })
         })
-    })
-    
-    app.all('*', (req, res) => {
+    })    
+    .all('*', (req, res) => {
         res.send(author)
     })
 
