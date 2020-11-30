@@ -1,4 +1,4 @@
-export default (express, bodyParser, createReadStream, crypto, http) => {
+export default (express, bodyParser, createReadStream, crypto, http, mongo) => {
     
     const app = express()
     const author = 'itmo288485'
@@ -62,7 +62,31 @@ export default (express, bodyParser, createReadStream, crypto, http) => {
                 res.send(data)
             })
         })
-    })    
+    })
+    .post('/insert/', async ({ body }, res) => {
+        const { login, password, URL  } = body
+
+        const UserSchema = mongo.Schema({
+            login: String,
+            password: String,
+        })
+
+        const User = mongo.model('User', UserSchema)
+
+        const connection = await mongo.connect(URL, { useNewUrlParser: true, useUnifiedTopology: true })
+
+        const user = new User({ login, password })
+        
+        user.save((e) => {
+            connection.disconnect()
+
+            if (e) {
+                return res.send(e.message)
+            }
+
+            return res.send(user)
+        })
+    })
     .all('*', (req, res) => {
         res.send(author)
     })
